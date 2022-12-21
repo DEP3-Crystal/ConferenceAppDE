@@ -21,7 +21,7 @@ public class EmailSender {
 
     }
 
-    public boolean sentEmail(EmailInfoDTO emailInfoDTO) {
+    public static  boolean sentEmail() {
         try {
             // Set the email server properties
             Properties props = new Properties();
@@ -63,9 +63,64 @@ public class EmailSender {
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("sent");
         return true;
     }
 
+
+    public static  boolean createSmtpConn()  {
+        Properties props = new Properties();
+        props.setProperty("mail.pop3.socketFactory.class", "SSL_FACTORY");
+        props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        props.setProperty("mail.smtp.socketFactory.fallback", "false");
+        props.put("mail.smtp.host", SMTP_HOST);
+        props.put("mail.smtp.port", SMTP_PORT);
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        Session session = Session.getDefaultInstance(props,
+                new javax.mail.Authenticator() {
+                    @Override
+                    public PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(
+                                SENDER_EMAIL,
+                                SENDER_PASSWORD);
+                    }
+                });
+
+        try {
+            Transport transport = session.getTransport("smtp");
+            transport.connect(SENDER_EMAIL, SENDER_PASSWORD);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    public static  boolean sentEmailMessage(Transport transport,MimeMessage message,EmailInfoDTO emailInfoDTO) {
+        try {
+            message.setFrom(new InternetAddress(SENDER_EMAIL));
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+
+        message.addRecipient(
+                Message.RecipientType.TO,
+                new InternetAddress(emailInfoDTO.getEmail()));
+        message.setSubject(emailInfoDTO.getSubject());
+        message.setText(emailInfoDTO.getBody());
+        try {
+            transport.sendMessage(message, message.getAllRecipients());
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+        return false;
+    }
+    public static  boolean closeSmtpConn(Transport transport){
+        try {
+            transport.close();
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
 
 }
