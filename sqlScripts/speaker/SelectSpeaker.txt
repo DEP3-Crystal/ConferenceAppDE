@@ -1,0 +1,1 @@
+SELECT speaker_id,rating FROM speaker_rate where speaker_id = ?
