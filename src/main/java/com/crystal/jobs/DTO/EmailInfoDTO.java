@@ -1,4 +1,4 @@
-package com.crystal.jobs;
+package com.crystal.jobs.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
