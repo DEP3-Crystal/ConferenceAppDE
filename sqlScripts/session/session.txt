@@ -1,0 +1,1 @@
+SELECT * FROM participant_session  where session_id = ?
