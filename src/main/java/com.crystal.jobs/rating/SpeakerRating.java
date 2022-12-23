@@ -33,6 +33,7 @@ public class SpeakerRating {
     public static void main(String[] args) {
         SpeakerIdSession options = PipelineOptionsFactory.fromArgs(args)
                 .withValidation().as(SpeakerIdSession.class);
+
         Pipeline pipeline = Pipeline.create(options);
 
         pipeline.apply(new ReadDataFRDB(options.getSpeakerId()))

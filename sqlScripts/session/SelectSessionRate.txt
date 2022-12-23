@@ -1,1 +1,1 @@
-SELECT id,session_rate FROM session
+SELECT session_id,title,session_rate,first_name,last_name  FROM session_speaker_info  as session_speaker1 INNER JOIN speaker ON session_speaker1.speaker_id=speaker.speaker_id where session_id in ( select id from top_session);

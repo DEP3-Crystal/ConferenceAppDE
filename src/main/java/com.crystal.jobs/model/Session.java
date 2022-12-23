@@ -1,37 +1,32 @@
 package com.crystal.jobs.model;
 
+import lombok.Data;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Data
 
 public class Session implements Serializable {
     private int id;
-    private double rate;
+    private String sessionTitle;
+    private double sessionRate;
+    private List<Speaker> speakers;
 
-    public Session(int id, double rate) {
+    public Session(int id, String sessionTitle, double sessionRate) {
         this.id = id;
-        this.rate = rate;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public double getRate() {
-        return rate;
-    }
-
-    public void setRate(double rate) {
-        this.rate = rate;
+        this.sessionTitle = sessionTitle;
+        this.sessionRate = sessionRate;
+        this.speakers =new ArrayList<>();
     }
 
     @Override
     public String toString() {
-        return "Session{" +
-                "id=" + id +
-                ", rate=" + rate +
-                '}';
+        return
+                "sessionTitle='" + sessionTitle + '\'' +
+                ", speakers=" + speakers.stream().map(Speaker::toString).collect(Collectors.joining(", "))  ;
+
     }
 }
