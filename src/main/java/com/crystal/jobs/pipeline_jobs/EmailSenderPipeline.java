@@ -27,7 +27,7 @@ public class EmailSenderPipeline {
                         "e.id as event_id , e.title as ev_name,e.start_day as eventStartDay,\n" +
                         "s.id as sessionId , s.title as sessionTitle ,s.start_time as sessionStartTime,s.end_time as sessionEndTime\n" +
                         "FROM session s , participant_session ps ,events e,user u\n" +
-                        "where e.start_day<=(now()+interval 1 day)and s.event_id=e.id and ps.session_id=s.id  and ps.user_id=u.id;\n";
+                        "where e.start_day>=(now()+interval 1 day)and s.event_id=e.id and ps.session_id=s.id  and ps.user_id=u.id;\n";
 
         Pipeline p = Pipeline.create();
 
@@ -41,25 +41,21 @@ public class EmailSenderPipeline {
                         .withRowMapper(
                                 (JdbcIO.RowMapper<EmailInfoDTO>) resultSet -> new EmailInfoDTO(
                                         resultSet.getString("userName"),
-                                        "stefanruci1997@gamil.com",/*resultSet.getString("userEmail"),*/
+                                        resultSet.getString("userEmail"),
                                         "Conference start remainder",
                                         resultSet.getString("ev_name"),
                                         new java.sql.Date(new SimpleDateFormat("yyyy-MM-dd").parse(resultSet.getString("eventStartDay").toString()).getTime()),
                                         resultSet.getString(7),
                                         LocalDateTime.parse(resultSet.getString("sessionStartTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
                                         LocalDateTime.parse(resultSet.getString("sessionEndTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                                )))
+                                )
+                        )
+                )
 
                 .apply("print to console", ParDo.of(new DoFn<EmailInfoDTO, Void>() {
                                                         @ProcessElement
-                                                        public void processElement(ProcessContext c) {
-                                                            try {
+                                                        public void processElement(ProcessContext c)  {
                                                                 new EmailSender().sentEmail(Objects.requireNonNull(c.element()));
-                                                                Thread.sleep(10000);
-                                                            } catch (InterruptedException e) {
-                                                                throw new RuntimeException(e);
-                                                            }
-//
 //                                                            new EmailSenderPipeline().sentEmail();
 
 //                                                            try {
@@ -93,7 +89,8 @@ public class EmailSenderPipeline {
 
                                                         }
                                                     }
-                ));
+                        )
+                );
         p.run().waitUntilFinish();
 
 

@@ -2,6 +2,8 @@ package com.crystal.jobs.utils;
 
 import com.crystal.jobs.DTO.EmailInfoDTO;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -10,7 +12,7 @@ import java.util.Properties;
 
 @Data
 public class EmailSender {
-
+    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     //    private static final String SMTP_HOST = "smtp.mailgun.org";
 //    private static final String API_KEY = "eb38c18d-4cdcbdb6";
 //
@@ -24,16 +26,13 @@ public class EmailSender {
 
 
     public void sentEmail(EmailInfoDTO emailInfoDTO) {
+
         try {
             emailInfoDTO.setBody();
             // Set the email server properties
             Properties props = new Properties();
 
-//            props.put("mail.imap.host", "imap.zoho.eu");
-//            props.put("mail.imap.port", "993");
-//            props.put("mail.imap.ssl.enable", "true");
-
-//            props.setProperty("mail.pop3.socketFactory.class", "SSL_FACTORY");
+            props.setProperty("mail.pop3.socketFactory.class", "SSL_FACTORY");
             props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
             props.setProperty("mail.smtp.socketFactory.fallback", "false");
             props.put("mail.smtp.host", SMTP_HOST);
@@ -44,11 +43,6 @@ public class EmailSender {
 
             // Create a session with the specified properties
             Session session = Session.getDefaultInstance(props,
-//                    new javax.mail.Authenticator() {
-//                        @Override
-//                        protected PasswordAuthentication getPasswordAuthentication() {
-//                            return new PasswordAuthentication("api", API_KEY);
-//                        }
                     new javax.mail.Authenticator() {
                         @Override
                         public PasswordAuthentication getPasswordAuthentication() {
@@ -71,11 +65,13 @@ public class EmailSender {
 
 
             Transport transport = session.getTransport("smtp");
-//            transport.connect(SENDER_EMAIL, SENDER_PASSWORD);
-            transport.connect();
+            transport.connect(SENDER_EMAIL, SENDER_PASSWORD);
             transport.sendMessage(message, message.getAllRecipients());
             transport.close();
-            System.out.println("Email sent successfully");
+
+            Log.logger.info("Email sent successfully");
+            Log.logInfo("Email sent successfully");
+
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }

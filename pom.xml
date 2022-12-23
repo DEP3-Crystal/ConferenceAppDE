@@ -136,20 +136,7 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.30</version>
         </dependency>
-        <!-- Adds a dependency on the Beam SDK. -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.beam</groupId>-->
-        <!--            <artifactId>beam-sdks-java-core</artifactId>-->
-        <!--            <version>${beam.version}</version>-->
-        <!--        </dependency>-->
 
-        <!-- Adds a dependency on the Beam Google Cloud Platform IO module. -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.apache.beam</groupId>-->
-        <!--            <artifactId>beam-sdks-java-io-google-cloud-platform</artifactId>-->
-        <!--            <version>${beam.version}</version>-->
-        <!--        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/org.apache.beam/beam-sdks-java-io-jdbc -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-jdbc</artifactId>

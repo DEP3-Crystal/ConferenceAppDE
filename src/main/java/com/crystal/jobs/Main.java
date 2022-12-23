@@ -2,6 +2,7 @@ package com.crystal.jobs;
 
 import com.crystal.jobs.DTO.EmailInfoDTO;
 import com.crystal.jobs.utils.EmailSender;
+import com.crystal.jobs.utils.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,10 +11,10 @@ import java.time.format.DateTimeFormatter;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("De App");
+        Log.logInfo("De app");
 
         try {
-           new EmailSender().sentEmail(new EmailInfoDTO(
+            new EmailSender().sentEmail(new EmailInfoDTO(
                     "stefan",
                     "stefanruci1997@gmail.com",
                     "Conference start remainder",
