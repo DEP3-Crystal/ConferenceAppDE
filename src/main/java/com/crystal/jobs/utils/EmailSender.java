@@ -12,7 +12,15 @@ import java.util.Properties;
 
 @Data
 public class EmailSender {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private static EmailSender emailSender =new EmailSender();
+    public static synchronized  EmailSender getInstance(){
+        if (emailSender == null) {
+            emailSender = new EmailSender();
+        }
+        return emailSender;
+    }
+    private  EmailSender (){}
+
     //    private static final String SMTP_HOST = "smtp.mailgun.org";
 //    private static final String API_KEY = "eb38c18d-4cdcbdb6";
 //

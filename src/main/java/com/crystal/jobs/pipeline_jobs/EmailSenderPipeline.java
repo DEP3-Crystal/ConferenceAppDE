@@ -2,6 +2,7 @@ package com.crystal.jobs.pipeline_jobs;
 
 import com.crystal.jobs.DTO.EmailInfoDTO;
 import com.crystal.jobs.utils.EmailSender;
+import com.crystal.jobs.utils.MailSender;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
@@ -27,7 +28,7 @@ public class EmailSenderPipeline {
                         "e.id as event_id , e.title as ev_name,e.start_day as eventStartDay,\n" +
                         "s.id as sessionId , s.title as sessionTitle ,s.start_time as sessionStartTime,s.end_time as sessionEndTime\n" +
                         "FROM session s , participant_session ps ,events e,user u\n" +
-                        "where e.start_day>=(now()+interval 1 day)and s.event_id=e.id and ps.session_id=s.id  and ps.user_id=u.id;\n";
+                        "where e.start_day<=(now()+interval 1 day)and s.event_id=e.id and ps.session_id=s.id  and ps.user_id=u.id;\n";
 
         Pipeline p = Pipeline.create();
 
@@ -55,14 +56,11 @@ public class EmailSenderPipeline {
                 .apply("print to console", ParDo.of(new DoFn<EmailInfoDTO, Void>() {
                                                         @ProcessElement
                                                         public void processElement(ProcessContext c)  {
-                                                                new EmailSender().sentEmail(Objects.requireNonNull(c.element()));
+                                                            MailSender.getInstance().sendMail(Objects.requireNonNull(c.element()).getEmail(),c.element().getSubject(),c.element().getBody());
+//                                                                new EmailSender().sentEmail(Objects.requireNonNull(c.element()));
+
 //                                                            new EmailSenderPipeline().sentEmail();
 
-//                                                            try {
-//                                                                Thread.sleep(10000);
-//                                                            } catch (InterruptedException e) {
-//                                                                throw new RuntimeException(e);
-//                                                            }
                                                             System.out.println(
                                                                     c.element().getName()
                                                                             + ","
