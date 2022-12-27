@@ -72,12 +72,12 @@ public class EmailSender {
             message.setText(emailInfoDTO.getBody());
 
 
+
             Transport transport = session.getTransport("smtp");
             transport.connect(SENDER_EMAIL, SENDER_PASSWORD);
             transport.sendMessage(message, message.getAllRecipients());
             transport.close();
 
-            Log.logger.info("Email sent successfully");
             Log.logInfo("Email sent successfully");
 
         } catch (MessagingException e) {

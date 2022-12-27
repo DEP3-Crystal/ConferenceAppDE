@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 //import java.util.Date;
 
@@ -53,12 +52,17 @@ public class EmailInfoDTO implements Serializable {
     }
 
     public void setBody() {
-        this.body = "Hello Mrs/Mis " + name.substring(0, 1).toUpperCase() + name.substring(1)
-                + "\n We are remaindering   for the   " + " of the conference : " + conferenceName+ " and  session : "+ sessionName +
-                "that  you have participate starts tomorrow at :" +conferenceStartDay + "\n " +
-               "\n\n Hope see you there bye !";
+        this.body = "Hello Mrs/Mis "
+                + name.substring(0, 1).toUpperCase()
+                + name.substring(1)
+                + "\n We are remaindering   for the   the conference : "
+                + conferenceName
+                + "and  session : "
+                + sessionName
+                + "that you have participate starts tomorrow at :"
+                + conferenceStartDay
+                + "\n \n\n Hope see you there bye !";
     }
-
 
 
 }

@@ -3,7 +3,6 @@ package com.crystal.jobs;
 import com.crystal.jobs.DTO.EmailInfoDTO;
 import com.crystal.jobs.utils.EmailSender;
 import com.crystal.jobs.utils.Log;
-import com.crystal.jobs.utils.MailSender;
 
 import java.sql.Date;
 import java.text.ParseException;
