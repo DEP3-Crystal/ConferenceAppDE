@@ -23,15 +23,13 @@ public  class ReadDataFRDB extends PTransform<PBegin, PCollection<String>> imple
 
     @Override
     public PCollection<String> expand(PBegin input) {
-        try {
-            return input.apply(JDBC_CONNECTOR.<String>databaseInit(path)
-                    .withStatementPreparator((JdbcIO.StatementPreparator) preparedStatement ->
-                            preparedStatement.setInt(1, id))
-                    .withRowMapper((JdbcIO.RowMapper<String>) resultSet ->
-                            resultSet.getString(1) + "," + resultSet.getString(2)
-                                    + "," + resultSet.getString(3)));
-        } catch (IOException e) {
-            throw new RuntimeException("Something went wrong", e);
-        }
+
+        return input.apply(JDBC_CONNECTOR.<String>databaseInit(path)
+                .withStatementPreparator((JdbcIO.StatementPreparator) preparedStatement ->
+                        preparedStatement.setInt(1, id))
+                .withRowMapper((JdbcIO.RowMapper<String>) resultSet ->
+                        resultSet.getString(1) + "," + resultSet.getString(2)
+                                + "," + resultSet.getString(3)));
+
     }
 }

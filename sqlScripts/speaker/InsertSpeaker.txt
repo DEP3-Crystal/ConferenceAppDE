@@ -1,1 +1,0 @@
-UPDATE speaker SET speaker_rate=? where speaker.id = ?

@@ -1,0 +1,2 @@
+DROP VIEW top_session;
+create view top_session as SELECT id FROM session order by session_rate desc limit {{top_sessions_number}}

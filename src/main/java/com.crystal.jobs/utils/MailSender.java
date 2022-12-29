@@ -5,7 +5,9 @@ import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 
-public class MailSender {
+import java.io.Serializable;
+
+public class MailSender implements Serializable {
 
     private static MailSender INSTANCE = new MailSender();
 

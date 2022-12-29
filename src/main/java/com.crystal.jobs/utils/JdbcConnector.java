@@ -2,11 +2,8 @@ package com.crystal.jobs.utils;
 
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Objects;
+import java.util.Scanner;
 
 public class JdbcConnector {
 
@@ -21,26 +18,26 @@ public class JdbcConnector {
         }
         return INSTANCE;
     }
-    public <T> JdbcIO.Read<T> databaseInit(String path) throws IOException {
-        try(Stream<String> lines = Files.lines(Path.of(path))) {
+    public <T> JdbcIO.Read<T> databaseInit(String path) {
+        String text = new Scanner(Objects.requireNonNull(JdbcConnector.class.getResourceAsStream(path)),  "UTF-8").useDelimiter("\\A").next();
             return JdbcIO.<T>read()
                     .withDataSourceConfiguration(JdbcIO.DataSourceConfiguration
                             .create("com.mysql.cj.jdbc.Driver", "jdbc:mysql://localhost:3306/conference")
                             .withUsername("root")
                             .withPassword("Shanti2022!"))
-                    .withQuery(lines.collect(Collectors.joining()));
-        }
+                    .withQuery(text);
+
     }
 
-    public <T> JdbcIO.Write<T> databaseWrite(String path) throws IOException {
-        try(Stream<String> lines = Files.lines(Path.of(path))) {
+    public <T> JdbcIO.Write<T> databaseWrite(String path) {
+        String text = new Scanner(Objects.requireNonNull(JdbcConnector.class.getResourceAsStream(path)),  "UTF-8").useDelimiter("\\A").next();
             return JdbcIO.<T>write()
                     .withDataSourceConfiguration(JdbcIO.DataSourceConfiguration
                             .create("com.mysql.cj.jdbc.Driver", "jdbc:mysql://localhost:3306/conference")
                             .withUsername("root")
                             .withPassword("Shanti2022!"))
-                    .withStatement(lines.collect(Collectors.joining()));
+                    .withStatement(text);
         }
-    }
+
 
 }
