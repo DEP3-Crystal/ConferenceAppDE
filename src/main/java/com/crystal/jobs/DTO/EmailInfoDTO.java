@@ -3,6 +3,8 @@ package com.crystal.jobs.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.DefaultCoder;
 
 import java.io.Serializable;
 import java.sql.Date;
@@ -12,7 +14,10 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @AllArgsConstructor
-public class EmailInfoDTO implements Serializable {
+@DefaultCoder(AvroCoder.class)
+public class EmailInfoDTO
+        implements Serializable
+{
     private String name;
     private String email;
     private String subject;

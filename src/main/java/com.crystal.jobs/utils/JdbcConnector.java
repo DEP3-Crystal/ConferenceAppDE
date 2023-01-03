@@ -8,6 +8,26 @@ import java.util.Scanner;
 public class JdbcConnector {
 
     private static JdbcConnector INSTANCE;
+    private  final String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
+    private  final String DB_URL = "jdbc:mysql://localhost:3306/conference";
+    private  final String DB_USER_NAME = "root";
+    private  final String DB_PASSWORD = "Shanti2022!";
+
+    public String getDRIVER_CLASS_NAME() {
+        return DRIVER_CLASS_NAME;
+    }
+
+    public String getDB_URL() {
+        return DB_URL;
+    }
+
+    public String getDB_USER_NAME() {
+        return DB_USER_NAME;
+    }
+
+    public String getDB_PASSWORD() {
+        return DB_PASSWORD;
+    }
 
     private JdbcConnector() {
     }
