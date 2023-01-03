@@ -26,7 +26,7 @@ public class Session implements Serializable {
     public String toString() {
         return
                 "sessionTitle='" + sessionTitle + '\'' +
-                ", speakers=" + speakers.stream().map(Speaker::toString).collect(Collectors.joining(", "))  ;
+                ", presented by " + speakers.stream().map(Speaker::toString).collect(Collectors.joining(", "))  ;
 
     }
 }

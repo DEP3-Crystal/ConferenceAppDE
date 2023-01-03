@@ -7,10 +7,17 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 @Data
-@AllArgsConstructor
+
 @NoArgsConstructor
 public class Participant implements Serializable {
     private String firstName;
     private String lastName;
     private String email;
+    private String mailContent;
+
+    public Participant(String firstName, String lastName, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
 }

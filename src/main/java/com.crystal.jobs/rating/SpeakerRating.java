@@ -1,8 +1,6 @@
 package com.crystal.jobs.rating;
 
-import com.crystal.jobs.model.Session;
 import com.crystal.jobs.utils.JdbcConnector;
-import org.apache.arrow.flatbuf.Int;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
@@ -17,8 +15,6 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PDone;
-
-import java.io.IOException;
 
 public class SpeakerRating {
     private static final JdbcConnector JDBC_CONNECTOR = JdbcConnector.getInstance();
@@ -38,9 +34,9 @@ public class SpeakerRating {
 
         pipeline.apply(new ReadDataFRDB(options.getSpeakerId()))
                 .apply(ParDo.of(new SpeakerKVFn()))
-                        .apply(Mean.perKey())
-                                .apply(new InsertSpeakerDB());
-        pipeline.run();
+                .apply(Mean.perKey())
+                .apply(new InsertSpeakerDB());
+        pipeline.run().waitUntilFinish();
 
     }
 
@@ -65,32 +61,26 @@ public class SpeakerRating {
 
         @Override
         public PCollection<String> expand(PBegin input) {
-            try {
-                return input.apply(JDBC_CONNECTOR.<String>databaseInit("sqlScripts/speaker/SelectSpeaker.txt")
-                        .withCoder(StringUtf8Coder.of())
-                        .withStatementPreparator((JdbcIO.StatementPreparator) preparedStatement ->
-                                preparedStatement.setInt(1, id))
-                        .withRowMapper((JdbcIO.RowMapper<String>) resultSet ->
-                                resultSet.getString(1) + "," + resultSet.getString(2)));
-            } catch (IOException e) {
-                throw new RuntimeException("Something went wrong", e);
-            }
+            return input.apply(JDBC_CONNECTOR.<String>databaseInit("/sqlScripts/speaker/SelectSpeaker.txt")
+                    .withCoder(StringUtf8Coder.of())
+                    .withStatementPreparator((JdbcIO.StatementPreparator) preparedStatement ->
+                            preparedStatement.setInt(1, id))
+                    .withRowMapper((JdbcIO.RowMapper<String>) resultSet ->
+                            resultSet.getString(1) + "," + resultSet.getString(2)));
+
         }
     }
 
-    private static class InsertSpeakerDB extends PTransform<PCollection<KV<Integer,Double>>, PDone> {
+    private static class InsertSpeakerDB extends PTransform<PCollection<KV<Integer, Double>>, PDone> {
         @Override
-        public PDone expand(PCollection<KV<Integer,Double>> input) {
-            try {
-                return input.apply(JDBC_CONNECTOR.<KV<Integer,Double>>databaseWrite("sqlScripts/speaker/InsertSpeaker.txt")
-                        .withPreparedStatementSetter((JdbcIO.PreparedStatementSetter<KV<Integer,Double>>) (element, preparedStatement) -> {
-                            preparedStatement.setInt(2, element.getKey());
-                            preparedStatement.setDouble(1,element.getValue());
-                        })
-                );
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        public PDone expand(PCollection<KV<Integer, Double>> input) {
+            return input.apply(JDBC_CONNECTOR.<KV<Integer, Double>>databaseWrite("/sqlScripts/speaker/InsertSpeaker.txt")
+                    .withPreparedStatementSetter((JdbcIO.PreparedStatementSetter<KV<Integer, Double>>) (element, preparedStatement) -> {
+                        preparedStatement.setInt(2, element.getKey());
+                        preparedStatement.setDouble(1, element.getValue());
+                    })
+            );
+
         }
     }
 }

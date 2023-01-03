@@ -10,9 +10,12 @@ public class Speaker implements Serializable {
     private String speakerFirstName;
     private String speakerLastName;
 
+
+
     @Override
     public String toString() {
         return
                 speakerFirstName + '\'' + speakerLastName;
     }
+
 }
