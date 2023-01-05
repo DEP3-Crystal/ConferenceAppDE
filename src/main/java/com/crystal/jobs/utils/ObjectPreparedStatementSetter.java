@@ -6,10 +6,15 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 
 public class ObjectPreparedStatementSetter<T> implements JdbcIO.PreparedStatementSetter<T> {
-        @Override
+    private Field[] fields;
+
+    public ObjectPreparedStatementSetter(Field[] fields) {
+        this.fields = fields;
+    }
+
+    @Override
         public void setParameters(T object, PreparedStatement preparedStatement) throws Exception {
-            Class<?> objectClass = object.getClass();
-            Field[] fields = objectClass.getDeclaredFields();
+
             for (int i = 0; i < fields.length; i++) {
                 Field field = fields[i];
                 field.setAccessible(true);

@@ -6,6 +6,7 @@ import com.crystal.jobs.utils.JdbcConnector;
 import com.crystal.jobs.utils.Log;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
+import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -56,7 +57,7 @@ public class EmailSenderPipeline {
         );
         PCollectionView<Iterable<EmailInfoDTO>> emails = emailInfoDTOPCollection.apply(View.asIterable());
 
-        emailInfoDTOPCollection.apply(Count.globally())
+        emailInfoDTOPCollection.apply("Count elements", Count.globally())
                 .apply("print to console", ParDo.of(new DoFn<Long, Void>() {
                                                         @ProcessElement
                                                         public void processElement(ProcessContext c) {
@@ -73,6 +74,9 @@ public class EmailSenderPipeline {
                                                     }
                         ).withSideInputs(emails)
                 );
+
+        emailInfoDTOPCollection.apply(ParDo.of(new ObjectToString<>()))
+                .apply(TextIO.write().to(String.valueOf(EmailSenderPipeline.class.getResource("")).concat("emailDTO")).withoutSharding().withSuffix(".csv"));
 
 
         pipeline.run().waitUntilFinish();

@@ -16,8 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @DefaultCoder(AvroCoder.class)
 public class EmailInfoDTO
-        implements Serializable
-{
+        implements Serializable {
     private String name;
     private String email;
     private String subject;
