@@ -46,7 +46,7 @@ public class Main {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-        EmailSender.getInstance().sentEmail(emailInfoDTO);
+//        EmailSender.getInstance().sentEmail(emailInfoDTO);
 //        MailSender.getInstance().sendMail(emailInfoDTO.getEmail(),emailInfoDTO.getSubject(),emailInfoDTO.getBody());
     }
 

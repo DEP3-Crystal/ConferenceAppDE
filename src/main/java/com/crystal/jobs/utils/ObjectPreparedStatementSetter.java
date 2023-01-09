@@ -12,16 +12,17 @@ public class ObjectPreparedStatementSetter<T> implements JdbcIO.PreparedStatemen
         this.fields = fields;
     }
 
-    @Override
-        public void setParameters(T object, PreparedStatement preparedStatement) throws Exception {
 
-            for (int i = 0; i < fields.length; i++) {
-                Field field = fields[i];
-                field.setAccessible(true);
-                Object value = field.get(object);
-                preparedStatement.setObject(i + 1, value);
-            }
+    @Override
+    public void setParameters(T object, PreparedStatement preparedStatement) throws Exception {
+
+        for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            field.setAccessible(true);
+            Object value = field.get(object);
+            preparedStatement.setObject(i + 1, value);
         }
     }
+}
 
 

@@ -4,10 +4,13 @@ package com.crystal.jobs.pipeline_jobs;
 import com.crystal.jobs.DTO.EmailInfoDTO;
 import com.crystal.jobs.utils.JdbcConnector;
 import com.crystal.jobs.utils.Log;
+import com.crystal.jobs.utils.MailSender;
+import com.crystal.jobs.utils.ObjectToString;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
+import org.apache.beam.sdk.io.jdbc.JdbcIO.RowMapper;
 import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -17,13 +20,46 @@ import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptor;
 
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class EmailSenderPipeline {
+public class EmailReminderOneDayBeforeEvent {
+    private EmailReminderOneDayBeforeEvent() {
+    }
+
+    private static EmailReminderOneDayBeforeEvent INSTANCE;
+
+    public static synchronized EmailReminderOneDayBeforeEvent getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new EmailReminderOneDayBeforeEvent();
+        }
+        return INSTANCE;
+    }
+
 
     public static void main(String[] args) {
+
+        EmailReminderOneDayBeforeEvent.getInstance().sentEmailRemainderOneDayBefore();
+    }
+
+    private static EmailInfoDTO mapRow(ResultSet resultSet) throws SQLException, ParseException {
+        return new EmailInfoDTO(
+                resultSet.getString("userName"),
+                resultSet.getString("userEmail"),
+                "Conference start remainder",
+                resultSet.getString("ev_name"),
+                new Date(new SimpleDateFormat("yyyy-MM-dd").parse(resultSet.getString("eventStartDay")).getTime()),
+                resultSet.getString(7),
+                LocalDateTime.parse(resultSet.getString("sessionStartTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                LocalDateTime.parse(resultSet.getString("sessionEndTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        );
+    }
+
+    public void sentEmailRemainderOneDayBefore() {
         String sendRemainderEmailToParticipantsForSessionOneDayBeforeStart =
                 "SELECT \n" +
                         "u.id as par_id , u.first_name as userName,u.email as userEmail,\n" +
@@ -35,24 +71,11 @@ public class EmailSenderPipeline {
         Pipeline pipeline = Pipeline.create();
 
         PCollection<EmailInfoDTO> emailInfoDTOPCollection = pipeline.apply("read from db", JdbcIO.<EmailInfoDTO>read()
-                .withDataSourceConfiguration(JdbcIO.DataSourceConfiguration.create(
-                                JdbcConnector.getInstance().getDRIVER_CLASS_NAME(),
-                                JdbcConnector.getInstance().getDB_URL())
-                        .withUsername(JdbcConnector.getInstance().getDB_USER_NAME())
-                        .withPassword(JdbcConnector.getInstance().getDB_PASSWORD()))
+                .withDataSourceConfiguration(JdbcConnector.getInstance().getDB_SOURCE_CONFIGURATION())
                 .withQuery(sendRemainderEmailToParticipantsForSessionOneDayBeforeStart)
                 .withCoder(SerializableCoder.of(TypeDescriptor.of(EmailInfoDTO.class)))
                 .withRowMapper(
-                        (JdbcIO.RowMapper<EmailInfoDTO>) resultSet -> new EmailInfoDTO(
-                                resultSet.getString("userName"),
-                                resultSet.getString("userEmail"),
-                                "Conference start remainder",
-                                resultSet.getString("ev_name"),
-                                new Date(new SimpleDateFormat("yyyy-MM-dd").parse(resultSet.getString("eventStartDay").toString()).getTime()),
-                                resultSet.getString(7),
-                                LocalDateTime.parse(resultSet.getString("sessionStartTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
-                                LocalDateTime.parse(resultSet.getString("sessionEndTime"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                        )
+                        (RowMapper<EmailInfoDTO>) EmailReminderOneDayBeforeEvent::mapRow
                 )
         );
         PCollectionView<Iterable<EmailInfoDTO>> emails = emailInfoDTOPCollection.apply(View.asIterable());
@@ -65,10 +88,12 @@ public class EmailSenderPipeline {
                                                                 c.sideInput(emails)
                                                                         .forEach(element -> {
                                                                             Log.logInfo(element + "");
-//                                                                            MailSender.getInstance().sendMail(element.getEmail(), element.getSubject(), element.getBody());
+                                                                            MailSender.getInstance().sendMail(element.getEmailTo(), element.getSubject(), element.getBody());
                                                                         });
 
-                                                            } else Log.logInfo("PCollection is empty");
+                                                            } else {
+                                                                Log.logInfo("PCollection is empty tomorrow don't have any event ");
+                                                            }
 
                                                         }
                                                     }
@@ -76,11 +101,12 @@ public class EmailSenderPipeline {
                 );
 
         emailInfoDTOPCollection.apply(ParDo.of(new ObjectToString<>()))
-                .apply(TextIO.write().to(String.valueOf(EmailSenderPipeline.class.getResource("")).concat("emailDTO")).withoutSharding().withSuffix(".csv"));
+                .apply(TextIO.write().to(String.valueOf(EmailReminderOneDayBeforeEvent.class.getResource("")).concat("emailDTO"))
+                        .withoutSharding()
+                        .withSuffix(".csv"));
 
 
         pipeline.run().waitUntilFinish();
-
 
     }
 }

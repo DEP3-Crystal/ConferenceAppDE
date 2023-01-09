@@ -2,8 +2,6 @@ package com.crystal.jobs.utils;
 
 import com.crystal.jobs.DTO.EmailInfoDTO;
 import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -67,7 +65,7 @@ public class EmailSender {
 
             message.addRecipient(
                     Message.RecipientType.TO,
-                    new InternetAddress(emailInfoDTO.getEmail()));
+                    new InternetAddress(emailInfoDTO.getEmailTo()));
             message.setSubject(emailInfoDTO.getSubject());
             message.setText(emailInfoDTO.getBody());
 

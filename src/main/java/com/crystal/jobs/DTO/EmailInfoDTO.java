@@ -15,10 +15,11 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @DefaultCoder(AvroCoder.class)
+
 public class EmailInfoDTO
         implements Serializable {
     private String name;
-    private String email;
+    private String emailTo;
     private String subject;
     private String body;
     private String conferenceName;
@@ -31,9 +32,9 @@ public class EmailInfoDTO
 
     }
 
-    public EmailInfoDTO(String name, String email, String subject, String conferenceName, Date conferenceStartDay, String sessionName, LocalDateTime sessionStartDate, LocalDateTime sessionEndDate) {
+    public EmailInfoDTO(String name, String emailTo, String subject, String conferenceName, Date conferenceStartDay, String sessionName, LocalDateTime sessionStartDate, LocalDateTime sessionEndDate) {
         this.name = name;
-        this.email = email;
+        this.emailTo = emailTo;
         this.subject = subject;
         this.conferenceName = conferenceName;
         this.conferenceStartDay = conferenceStartDay;
@@ -51,8 +52,8 @@ public class EmailInfoDTO
 //        return email;
 //    }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmailTo(String emailTo) {
+        this.emailTo = emailTo;
     }
 
     public void setBody() {

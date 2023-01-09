@@ -13,6 +13,15 @@ public class JdbcConnector {
     private  final String DB_USER_NAME = "root";
     private  final String DB_PASSWORD = "Shanti2022!";
 
+   private final JdbcIO.DataSourceConfiguration DB_SOURCE_CONFIGURATION =  JdbcIO.DataSourceConfiguration.create(DRIVER_CLASS_NAME
+            ,DB_URL)
+            .withUsername(DB_USER_NAME)
+            .withPassword(DB_PASSWORD);
+
+    public JdbcIO.DataSourceConfiguration getDB_SOURCE_CONFIGURATION() {
+        return DB_SOURCE_CONFIGURATION;
+    }
+
     public String getDRIVER_CLASS_NAME() {
         return DRIVER_CLASS_NAME;
     }
