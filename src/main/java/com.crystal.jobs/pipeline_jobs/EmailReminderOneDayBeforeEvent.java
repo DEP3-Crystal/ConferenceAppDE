@@ -5,10 +5,8 @@ import com.crystal.jobs.DTO.EmailInfoDTO;
 import com.crystal.jobs.utils.JdbcConnector;
 import com.crystal.jobs.utils.Log;
 import com.crystal.jobs.utils.MailSender;
-import com.crystal.jobs.utils.ObjectToString;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
-import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO.RowMapper;
 import org.apache.beam.sdk.transforms.Count;
@@ -19,7 +17,6 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptor;
 
-import java.io.Serializable;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -114,7 +111,7 @@ public class EmailReminderOneDayBeforeEvent {
                         "e.id as event_id , e.title as ev_name,e.start_day as eventStartDay,\n" +
                         "s.id as sessionId , s.title as sessionTitle ,s.start_time as sessionStartTime,s.end_time as sessionEndTime\n" +
                         "FROM session s , participant_session ps ,events e,user u\n" +
-                        "where e.start_day<=(now()+interval 1 day)and s.event_id=e.id and ps.session_id=s.id  and ps.user_id=u.id;\n";
+                        "where e.start_day<=(now()+interval 1 day) and s.event_id=e.id and ps.session_id=s.id  and ps.user_id=u.id;\n";
 
         Pipeline pipeline = Pipeline.create();
 
@@ -136,7 +133,7 @@ public class EmailReminderOneDayBeforeEvent {
                                                                 c.sideInput(emails)
                                                                         .forEach(element -> {
                                                                             Log.logInfo(element.getEmailTo() + "");
-//                                                                            MailSender.getInstance().sendMail(element.getEmailTo(), element.getSubject(), element.getBody());
+                                                                            MailSender.getInstance().sendMail(element.getEmailTo(), element.getSubject(), element.getBody());
                                                                         });
 
                                                             } else {

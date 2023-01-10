@@ -4,7 +4,6 @@ import com.crystal.jobs.DTO.ParticipantDTO;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 
 import java.sql.PreparedStatement;
-import java.util.Random;
 
 public class ParticipantSessionPreparedStatementSetter implements JdbcIO.PreparedStatementSetter<ParticipantDTO> {
     @Override
