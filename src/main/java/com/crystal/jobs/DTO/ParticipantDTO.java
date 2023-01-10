@@ -6,26 +6,28 @@ import lombok.NoArgsConstructor;
 import org.apache.beam.sdk.coders.DefaultCoder;
 import org.apache.beam.sdk.coders.SerializableCoder;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@DefaultCoder(SerializableCoder.class)
-public class ParticipantDTO {
+public class ParticipantDTO implements Serializable {
 //    userData
-    private String id;
-    private String name;
-    private String surname;
-    private String email;
+    private int id;
+
+//    private String name;
+//    private String surname;
+//    private String email;
 
 
     //participant-session data
-    private String sessionId;
+    private int sessionId;
 
     private int chairNumber;
     private String zone;
 
 
     //participant-session data
-    private String eventId;
+    private int eventId;
 
 }

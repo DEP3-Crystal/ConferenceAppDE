@@ -59,7 +59,7 @@ public class AnyCsvDTOToDb<T extends Object & java.io.Serializable> {
 
     }
 
-    public void writeAnyObjToDB(CsvParticipantDTOToDb.CsvDTOToDatabaseOptions options, T t) {
+    public void writeAnyObjToDB(CsvDTOToDatabaseOptions options, T t) {
 
         Pipeline pipeline = Pipeline.create(options);
 

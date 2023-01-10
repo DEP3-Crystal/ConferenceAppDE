@@ -18,7 +18,7 @@ public class ParticipantPreparedStatementSetter implements JdbcIO.PreparedStatem
 
     @Override
     public void setParameters(ParticipantDTO participantDTO, PreparedStatement preparedStatement) throws Exception {
-        preparedStatement.setString(1, participantDTO.getId());
+        preparedStatement.setInt(1, participantDTO.getId());
     }
 }
 

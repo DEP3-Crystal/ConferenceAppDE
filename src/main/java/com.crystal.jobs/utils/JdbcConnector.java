@@ -2,6 +2,9 @@ package com.crystal.jobs.utils;
 
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -48,7 +51,13 @@ public class JdbcConnector {
         return INSTANCE;
     }
     public <T> JdbcIO.Read<T> databaseInit(String path) {
-        String text = new Scanner(Objects.requireNonNull(JdbcConnector.class.getResourceAsStream(path)),  "UTF-8").useDelimiter("\\A").next();
+        String text= null ;
+        try {
+            text = Files.readString(Path.of(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        String text = new Scanner(Objects.requireNonNull(JdbcConnector.class.getResourceAsStream(path)),  "UTF-8").useDelimiter("\\A").next();
             return JdbcIO.<T>read()
                     .withDataSourceConfiguration(JdbcIO.DataSourceConfiguration
                             .create("com.mysql.cj.jdbc.Driver", "jdbc:mysql://localhost:3306/conference")

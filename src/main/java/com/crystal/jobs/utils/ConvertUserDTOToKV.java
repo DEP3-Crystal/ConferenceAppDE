@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public class ConvertUserDTOToKV extends DoFn<UserDTO, KV<String, UserDTO>> {
     @ProcessElement
-    void apply(ProcessContext c) {
+    public void apply(ProcessContext c) {
         c.output(KV.of(Objects.requireNonNull(c.element()).getId(), c.element()));
     }
 

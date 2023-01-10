@@ -13,7 +13,6 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@DefaultCoder(SerializableCoder.class)
 public class EventDTO implements Serializable {
     private Long id;
     private String title;

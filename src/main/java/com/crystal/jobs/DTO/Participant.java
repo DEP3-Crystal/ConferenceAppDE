@@ -11,7 +11,6 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@DefaultCoder(SerializableCoder.class)
 public class Participant implements Serializable {
     private String id;
     private String name;

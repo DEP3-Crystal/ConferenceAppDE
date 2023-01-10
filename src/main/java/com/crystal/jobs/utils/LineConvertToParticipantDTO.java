@@ -13,19 +13,16 @@ public class LineConvertToParticipantDTO extends DoFn<String, ParticipantDTO> {
     }
 
     @ProcessElement
-    void apply(ProcessContext c) {
+   public void apply(ProcessContext c) {
         String[] line = Objects.requireNonNull(c.element()).split(",");
         if (line.length == 8) {
-            if (!Objects.requireNonNull(c.element()).contains(header.substring(0, 3))) {
+            if (!Objects.requireNonNull(c.element()).contains(header.substring(0, 4))) {
                 c.output(new ParticipantDTO(
-                                line[0],
-                                line[1],
-                                line[2],
-                                line[3],
-                                line[4],
+                                Integer.parseInt(line[0]),
+                        Integer.parseInt(line[4]),
                                 Integer.parseInt(line[5]),
                                 line[6],
-                                line[7]
+                        Integer.parseInt(line[7])
                         )
                 );
             }

@@ -19,6 +19,7 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptor;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,8 +43,55 @@ public class EmailReminderOneDayBeforeEvent {
 
 
     public static void main(String[] args) {
+        sentEmailRemainderOneDayBefore();
+//        String sendRemainderEmailToParticipantsForSessionOneDayBeforeStart =
+//                "SELECT \n" +
+//                        "u.id as par_id , u.first_name as userName,u.email as userEmail,\n" +
+//                        "e.id as event_id , e.title as ev_name,e.start_day as eventStartDay,\n" +
+//                        "s.id as sessionId , s.title as sessionTitle ,s.start_time as sessionStartTime,s.end_time as sessionEndTime\n" +
+//                        "FROM session s , participant_session ps ,events e,user u\n" +
+//                        "where e.start_day<=(now()+interval 1 day)and s.event_id=e.id and ps.session_id=s.id  and ps.user_id=u.id;\n";
+//
+//        Pipeline pipeline = Pipeline.create();
+//
+//        PCollection<EmailInfoDTO> emailInfoDTOPCollection = pipeline.apply("read from db", JdbcIO.<EmailInfoDTO>read()
+//                .withDataSourceConfiguration(JdbcConnector.getInstance().getDB_SOURCE_CONFIGURATION())
+//                .withQuery(sendRemainderEmailToParticipantsForSessionOneDayBeforeStart)
+//                .withCoder(SerializableCoder.of(TypeDescriptor.of(EmailInfoDTO.class)))
+//                .withRowMapper(
+//                        (RowMapper<EmailInfoDTO>) EmailReminderOneDayBeforeEvent::mapRow
+//                )
+//        );
+//        PCollectionView<Iterable<EmailInfoDTO>> emails = emailInfoDTOPCollection.apply(View.asIterable());
+//
+//        emailInfoDTOPCollection.apply("Count elements", Count.globally())
+//                .apply("print to console", ParDo.of(new DoFn<Long, Void>() {
+//                                                        @ProcessElement
+//                                                        public void processElement(ProcessContext c) {
+//                                                            if (c.element() > 0) {
+//                                                                c.sideInput(emails)
+//                                                                        .forEach(element -> {
+//                                                                            Log.logInfo(element + "");
+////                                                                            MailSender.getInstance().sendMail(element.getEmailTo(), element.getSubject(), element.getBody());
+//                                                                        });
+//
+//                                                            } else {
+//                                                                Log.logInfo("PCollection is empty tomorrow don't have any event ");
+//                                                            }
+//
+//                                                        }
+//                                                    }
+//                        ).withSideInputs(emails)
+//                );
+//
+////        emailInfoDTOPCollection.apply(ParDo.of(new ObjectToString<>()))
+////                .apply(TextIO.write().to(String.valueOf(EmailReminderOneDayBeforeEvent.class.getResource("")).concat("emailDTO"))
+////                        .withoutSharding()
+////                        .withSuffix(".csv"));
+//
+//
+//        pipeline.run().waitUntilFinish();
 
-        EmailReminderOneDayBeforeEvent.getInstance().sentEmailRemainderOneDayBefore();
     }
 
     private static EmailInfoDTO mapRow(ResultSet resultSet) throws SQLException, ParseException {
@@ -59,7 +107,7 @@ public class EmailReminderOneDayBeforeEvent {
         );
     }
 
-    public void sentEmailRemainderOneDayBefore() {
+    public static void sentEmailRemainderOneDayBefore() {
         String sendRemainderEmailToParticipantsForSessionOneDayBeforeStart =
                 "SELECT \n" +
                         "u.id as par_id , u.first_name as userName,u.email as userEmail,\n" +
@@ -87,8 +135,8 @@ public class EmailReminderOneDayBeforeEvent {
                                                             if (c.element() > 0) {
                                                                 c.sideInput(emails)
                                                                         .forEach(element -> {
-                                                                            Log.logInfo(element + "");
-                                                                            MailSender.getInstance().sendMail(element.getEmailTo(), element.getSubject(), element.getBody());
+                                                                            Log.logInfo(element.getEmailTo() + "");
+//                                                                            MailSender.getInstance().sendMail(element.getEmailTo(), element.getSubject(), element.getBody());
                                                                         });
 
                                                             } else {
@@ -100,10 +148,10 @@ public class EmailReminderOneDayBeforeEvent {
                         ).withSideInputs(emails)
                 );
 
-        emailInfoDTOPCollection.apply(ParDo.of(new ObjectToString<>()))
-                .apply(TextIO.write().to(String.valueOf(EmailReminderOneDayBeforeEvent.class.getResource("")).concat("emailDTO"))
-                        .withoutSharding()
-                        .withSuffix(".csv"));
+//        emailInfoDTOPCollection.apply(ParDo.of(new ObjectToString<>()))
+//                .apply(TextIO.write().to(String.valueOf(EmailReminderOneDayBeforeEvent.class.getResource("")).concat("emailDTO"))
+//                        .withoutSharding()
+//                        .withSuffix(".csv"));
 
 
         pipeline.run().waitUntilFinish();
