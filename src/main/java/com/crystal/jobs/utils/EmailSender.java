@@ -2,8 +2,6 @@ package com.crystal.jobs.utils;
 
 import com.crystal.jobs.DTO.EmailInfoDTO;
 import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -12,7 +10,15 @@ import java.util.Properties;
 
 @Data
 public class EmailSender {
-    Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private static EmailSender emailSender =new EmailSender();
+    public static synchronized  EmailSender getInstance(){
+        if (emailSender == null) {
+            emailSender = new EmailSender();
+        }
+        return emailSender;
+    }
+    private  EmailSender (){}
+
     //    private static final String SMTP_HOST = "smtp.mailgun.org";
 //    private static final String API_KEY = "eb38c18d-4cdcbdb6";
 //
@@ -59,9 +65,10 @@ public class EmailSender {
 
             message.addRecipient(
                     Message.RecipientType.TO,
-                    new InternetAddress(emailInfoDTO.getEmail()));
+                    new InternetAddress(emailInfoDTO.getEmailTo()));
             message.setSubject(emailInfoDTO.getSubject());
             message.setText(emailInfoDTO.getBody());
+
 
 
             Transport transport = session.getTransport("smtp");
@@ -69,7 +76,6 @@ public class EmailSender {
             transport.sendMessage(message, message.getAllRecipients());
             transport.close();
 
-            Log.logger.info("Email sent successfully");
             Log.logInfo("Email sent successfully");
 
         } catch (MessagingException e) {

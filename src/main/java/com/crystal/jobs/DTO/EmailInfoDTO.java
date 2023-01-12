@@ -3,19 +3,23 @@ package com.crystal.jobs.DTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.beam.sdk.coders.AvroCoder;
+import org.apache.beam.sdk.coders.DefaultCoder;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 //import java.util.Date;
 
 @Data
 @Builder
 @AllArgsConstructor
-public class EmailInfoDTO implements Serializable {
+@DefaultCoder(AvroCoder.class)
+
+public class EmailInfoDTO
+        implements Serializable {
     private String name;
-    private String email;
+    private String emailTo;
     private String subject;
     private String body;
     private String conferenceName;
@@ -28,9 +32,9 @@ public class EmailInfoDTO implements Serializable {
 
     }
 
-    public EmailInfoDTO(String name, String email, String subject, String conferenceName, Date conferenceStartDay, String sessionName, LocalDateTime sessionStartDate, LocalDateTime sessionEndDate) {
+    public EmailInfoDTO(String name, String emailTo, String subject, String conferenceName, Date conferenceStartDay, String sessionName, LocalDateTime sessionStartDate, LocalDateTime sessionEndDate) {
         this.name = name;
-        this.email = email;
+        this.emailTo = emailTo;
         this.subject = subject;
         this.conferenceName = conferenceName;
         this.conferenceStartDay = conferenceStartDay;
@@ -48,17 +52,22 @@ public class EmailInfoDTO implements Serializable {
 //        return email;
 //    }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmailTo(String emailTo) {
+        this.emailTo = emailTo;
     }
 
     public void setBody() {
-        this.body = "Hello Mrs/Mis " + name.substring(0, 1).toUpperCase() + name.substring(1)
-                + "\n We are remaindering   for the   " + " of the conference : " + conferenceName+ " and  session : "+ sessionName +
-                "that  you have participate starts tomorrow at :" +conferenceStartDay + "\n " +
-               "\n\n Hope see you there bye !";
+        this.body = "Hello Mrs/Mis "
+                + name.substring(0, 1).toUpperCase()
+                + name.substring(1)
+                + "\n We are remaindering   for the   the conference : "
+                + conferenceName
+                + "that you have have subscribed "
+                + "We will be happy to see you tomorrow at :"
+                + conferenceStartDay
+                + " on "
+                + "\n \n\n Hope see you there bye !";
     }
-
 
 
 }

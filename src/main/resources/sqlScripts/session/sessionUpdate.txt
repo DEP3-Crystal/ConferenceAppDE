@@ -1,0 +1,1 @@
+UPDATE session SET session_rate=? where session.id = ?

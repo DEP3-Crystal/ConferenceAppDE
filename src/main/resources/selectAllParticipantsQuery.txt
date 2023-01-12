@@ -1,0 +1,1 @@
+"select  u.id as user_id , u.first_name as userName, u.last_name as last_Name,u.email as userEmail from conference.user u ,conference.participant p  where  p.id=u.id ;"
