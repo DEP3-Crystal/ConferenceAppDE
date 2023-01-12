@@ -46,11 +46,13 @@ public class CsvParticipantDTOToDb implements Serializable {
 
 
     public void writeParticipantInfoToDb(CsvDTOToDatabaseOptions options) {
+
         Pipeline pipeline = Pipeline.create(options);
 
         JdbcIO.DataSourceConfiguration sourceConfiguration = JdbcConnector.getInstance().getDB_SOURCE_CONFIGURATION();
 
-        PCollectionView<Iterable<KV<String, UserDTO>>> users = pipeline.apply("read all users from db", JdbcIO.<UserDTO>read()
+        PCollectionView<Iterable<KV<String, UserDTO>>> users = pipeline
+                .apply("read all users from db", JdbcIO.<UserDTO>read()
                         .withDataSourceConfiguration(sourceConfiguration)
                         .withQuery("Select id as id,dtype as user_type,first_name as name,last_name as surname,email From user")
                         .withCoder(SerializableCoder.of(TypeDescriptor.of(UserDTO.class)))
@@ -67,15 +69,16 @@ public class CsvParticipantDTOToDb implements Serializable {
                 .apply(ParDo.of(new ConvertUserDTOToKV()))
                 .apply(View.asIterable());
 
-//        PCollection<String> csvLines = readCSVJob(pipeline, options.getInputFileCSV());
 
 
         String header = "id,name,surname,email,session_id,chairNumber,zone,eventId";
+
         String sqlStatementInsertIntoParticipants = "INSERT INTO conference.participant  VALUES (?)";
         String sqlStatementInsertIntoParticipantSession = "INSERT INTO participant_session  VALUES (?, ?, ?)";
         String sqlStatementInsertIntoParticipantEvent = "INSERT INTO participant_event  VALUES (?, ?)";
 
         PCollection<ParticipantDTO> participantsDTO = readCSVJob(pipeline, options.getInputFileCSV())
+
                 .apply("Convert to participant objects", ParDo.of(new LineConvertToParticipantDTO(header)))
                 .apply("check for id match between 2 datasets ", ParDo.of(new DoFn<ParticipantDTO, ParticipantDTO>() {
                                                                               @ProcessElement
@@ -89,6 +92,8 @@ public class CsvParticipantDTOToDb implements Serializable {
                                                                               }
                                                                           }
                 ).withSideInputs(users));
+
+
         try {
             participantsDTO.apply("insert  participantDTO data into db participant table ", JdbcIO.<ParticipantDTO>write()
                     .withDataSourceConfiguration(sourceConfiguration)
@@ -120,10 +125,7 @@ public class CsvParticipantDTOToDb implements Serializable {
             Log.logInfo("participant_event data not  inserted");
 
         }
-
-
         pipeline.run().waitUntilFinish();
-
 
     }
 

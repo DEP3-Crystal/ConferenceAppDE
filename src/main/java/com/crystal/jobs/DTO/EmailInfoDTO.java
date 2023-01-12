@@ -62,10 +62,10 @@ public class EmailInfoDTO
                 + name.substring(1)
                 + "\n We are remaindering   for the   the conference : "
                 + conferenceName
-                + "and  session : "
-                + sessionName
-                + "that you have participate starts tomorrow at :"
+                + "that you have have subscribed "
+                + "We will be happy to see you tomorrow at :"
                 + conferenceStartDay
+                + " on "
                 + "\n \n\n Hope see you there bye !";
     }
 

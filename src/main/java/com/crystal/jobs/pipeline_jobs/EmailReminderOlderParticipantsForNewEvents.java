@@ -8,7 +8,6 @@ import com.crystal.jobs.utils.MailSender;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.SerializableCoder;
 import org.apache.beam.sdk.io.jdbc.JdbcIO;
-import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
@@ -20,19 +19,17 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptor;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class EmailReminderOlderParticipantsForNewEvents {
     public interface EventRemainderOptions extends PipelineOptions {
-        @Description("My Class")
-        @Default.Class(EventDTO.class)
-        EventDTO getEvent();
+        @Description("eventId")
+        int getEventId();
 
-        void setEvent(EventDTO myClass);
+        void setEventId(int eventId);
     }
 
     public static void main(String[] args) {
@@ -40,23 +37,40 @@ public class EmailReminderOlderParticipantsForNewEvents {
 //                .fromArgs(args)
 //                .withValidation()
                 .as(EventRemainderOptions.class);
-
-        EventDTO eventDTO = new EventDTO(
-                5L,
-                "tittle",
-                "decr ",
-                LocalDate.parse("2023-01-22", DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                LocalDate.parse("2023-01-25", DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-                "location",
-                200);
-        options.setEvent(eventDTO);
+        options.setEventId(2);
 
         sentEmailRemainderOneDayBefore(options);
 
     }
 
     public static void sentEmailRemainderOneDayBefore(EventRemainderOptions options) {
-        EventDTO eventDTO = options.getEvent();
+        String selectEventQuery = "SELECT id as eventID ,title,description,start_day,end_day,location,capacity FROM conference.events e where e.id=" + options.getEventId();
+        EventDTO eventDTO = null;
+        try (Connection connection = DriverManager.getConnection(JdbcConnector.getInstance().getDB_URL(), JdbcConnector.getInstance().getDB_USER_NAME(), JdbcConnector.getInstance().getDB_PASSWORD())) {
+            ResultSet result;
+            try (Statement statement = connection.createStatement()) {
+
+                result = statement.executeQuery(selectEventQuery);
+            }
+            while (result.next()) {
+                Long id = result.getLong("eventID");
+                String title = result.getString("title");
+                String description = result.getString("description");
+                String startDay = result.getString("start_day");
+                String endDay = result.getString("end_day");
+                String location = result.getString("location");
+                int capacity = result.getInt("capacity");
+
+                eventDTO = new EventDTO(id, title, description,
+                        LocalDate.parse(startDay, DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                        LocalDate.parse(endDay, DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+                        location, capacity
+                );
+            }
+        } catch (SQLException e) {
+            Log.logInfo("Event id is not correct provided : " + e.getMessage());
+        }
+
 
         String selectAllParticipantsQuery =
                 "select  u.id as user_id , u.first_name as userName, u.last_name as last_Name,u.email as userEmail\n"
@@ -74,15 +88,13 @@ public class EmailReminderOlderParticipantsForNewEvents {
                 )
         );
 
-//        PCollectionView<Iterable<Participant>> olderParticipants = participantDTOPCollection.apply(View.asIterable());
         PCollectionView<Iterable<Participant>> participantsView = participantDTOPCollection.apply(View.asIterable());
 
         participantDTOPCollection.apply("Count elements", Count.globally())
 
-                .apply("print to console", ParDo.of(new CheckIfHaveRows(eventDTO, participantsView))
+                .apply("check and sent emails", ParDo.of(new CheckAndSentEmails(eventDTO, participantsView))
                         .withSideInputs(participantsView)
                 );
-
 
         pipeline.run().waitUntilFinish();
 
@@ -98,11 +110,11 @@ public class EmailReminderOlderParticipantsForNewEvents {
         );
     }
 
-    public static class CheckIfHaveRows extends DoFn<Long, Void> {
+    public static class CheckAndSentEmails extends DoFn<Long, Void> {
         private EventDTO eventDTO;
         private PCollectionView<Iterable<Participant>> participantsView;
 
-        public CheckIfHaveRows(EventDTO eventDTO, PCollectionView<Iterable<Participant>> participantsView) {
+        public CheckAndSentEmails(EventDTO eventDTO, PCollectionView<Iterable<Participant>> participantsView) {
             this.eventDTO = eventDTO;
             this.participantsView = participantsView;
         }
@@ -127,15 +139,9 @@ public class EmailReminderOlderParticipantsForNewEvents {
                             + "\n We hope to see you at the event!\n"
                             + "\n Best regards,\n" +
                             "CMS APP";
-
-
-//                    MailSender.getInstance().sendMail(participant.getEmail(), "New Event Remainder", body);
+                    MailSender.getInstance().sendMail(participant.getEmail(), "New Event Remainder", body);
 
                 });
-
-
-//                        ParDo.of(new SentEmails(eventDTO));
-
 
             } else {
                 Log.logInfo("PCollection is empty tomorrow don't have any participant ");

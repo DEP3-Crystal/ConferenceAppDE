@@ -4,7 +4,6 @@ import com.crystal.jobs.model.Participant;
 import org.apache.beam.repackaged.core.org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
