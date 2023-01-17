@@ -19,7 +19,10 @@ import org.apache.beam.sdk.values.PCollection;
 import org.apache.beam.sdk.values.PCollectionView;
 import org.apache.beam.sdk.values.TypeDescriptor;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
@@ -46,7 +49,7 @@ public class EmailReminderOlderParticipantsForNewEvents {
     public static void sentEmailRemainderOneDayBefore(EventRemainderOptions options) {
         String selectEventQuery = "SELECT id as eventID ,title,description,start_day,end_day,location,capacity FROM conference.events e where e.id=" + options.getEventId();
         EventDTO eventDTO = null;
-        try (Connection connection = DriverManager.getConnection(JdbcConnector.getInstance().getDB_URL(), JdbcConnector.getInstance().getDB_USER_NAME(), JdbcConnector.getInstance().getDB_PASSWORD())) {
+        try (Connection connection = JdbcConnector.getInstance().getDbConnection()) {
             ResultSet result;
             try (Statement statement = connection.createStatement()) {
 
